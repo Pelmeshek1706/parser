@@ -260,22 +260,26 @@ def parse_twitter(query):
 
     return response
 
-def parse_tg(query):
+def parse_tg(query, n_posts):
     response = {
         'query': query,
-        'message': []
+        'content': []
     }
 
-    tg_links = ["https://t.me/UAonlii"]  # collected from DB
+    tg_links = ["https://t.me/UAonlii", "https://t.me/u_now"] #collected from DB
     for channel_link in tg_links:
         URL = channel_link[0:12] + "/s/" + channel_link[13::] + "?q=" + query.replace(" ", "+")
         channel = requests.get(URL).text
         soup = BeautifulSoup(channel, 'lxml')
         tgpost = soup.find_all('div', class_='tgme_widget_message')
-        full_message = {}
+
+        info = {
+            "channel_link": channel_link,
+            "message": []
+        }
 
         for content in tgpost:
-            full_message['channel_link'] = channel_link
+            full_message = {}
             full_message['text'] = content.find('div', class_='tgme_widget_message_text').text
             full_message['views'] = content.find('span', class_='tgme_widget_message_views').text
             full_message['timestamp'] = content.find('time', class_='time').text
@@ -285,11 +289,11 @@ def parse_tg(query):
                 full_message['url_image'] = re.findall(r"https://cdn4.*.*.jpg", link)[0]
             elif 'url_image' in full_message:
                 full_message.pop('url_image')
-
-            response['message'].append(full_message)
-
+            info['message'].append(full_message)
+        response['content'].append(info)
+    # print(response['content'][0])
+    # print(response['content'][1])
     return response
-
 
 google_result = parse_google(query)
 twitter_result = parse_twitter(query)
