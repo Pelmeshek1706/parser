@@ -305,4 +305,4 @@ def parse_tg(query, n_posts):
 
 google_result = parse_google(query)
 twitter_result = parse_twitter(query)
-tg_result = parse_tg(query)
+tg_result = parse_tg(query, 1)
