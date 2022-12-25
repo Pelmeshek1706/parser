@@ -277,22 +277,30 @@ def parse_tg(query, n_posts):
             "channel_link": channel_link,
             "message": []
         }
-
+        count = 0
         for content in tgpost:
-            full_message = {}
-            full_message['text'] = content.find('div', class_='tgme_widget_message_text').text
-            full_message['views'] = content.find('span', class_='tgme_widget_message_views').text
-            full_message['timestamp'] = content.find('time', class_='time').text
+            if count < n_posts:
+                full_message = {}
+                full_message['text'] = content.find('div', class_='tgme_widget_message_text').text
+                full_message['views'] = content.find('span', class_='tgme_widget_message_views').text
+                full_message['timestamp'] = content.find('time', class_='time').text
 
-            if content.find('a', class_='tgme_widget_message_photo_wrap') != None:
-                link = str(content.find('a', class_='tgme_widget_message_photo_wrap'))
-                full_message['url_image'] = re.findall(r"https://cdn4.*.*.jpg", link)[0]
-            elif 'url_image' in full_message:
-                full_message.pop('url_image')
-            info['message'].append(full_message)
+                if content.find('a', class_='tgme_widget_message_photo_wrap') != None:
+                    link = str(content.find('a', class_='tgme_widget_message_photo_wrap'))
+                    full_message['url_image'] = re.findall(r"https://cdn4.*.*.jpg", link)[0]
+                elif 'url_image' in full_message:
+                    full_message.pop('url_image')
+                info['message'].append(full_message)
+                count += 1
+            else:
+                break
         response['content'].append(info)
-    # print(response['content'][0])
-    # print(response['content'][1])
+    # a = response['content'][0]
+    # print(a)
+    # print(len(a['message']))
+    # b = response['content'][1]
+    # print(b)
+    # print(len(b['message']))
     return response
 
 google_result = parse_google(query)
