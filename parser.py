@@ -322,7 +322,7 @@ def parse_actual_news(country, period, max_results):
         for image in article.images:
             if ".jpg" in image or '.png' in image:
                 images.append(image)
-
+                break
         news_paper['image'] = images
         response.append(news_paper)
     return response
