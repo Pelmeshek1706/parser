@@ -13,6 +13,7 @@ from gnews import GNews
 
 query = input("Enter your query - ")
 
+constant = 50
 
 def parse_google(query):
     def parse_google_search(query, output, count_pages):
@@ -318,11 +319,14 @@ def parse_actual_news(country, period, max_results):
         news_paper['author'] = news['publisher']['title']
 
         article = google_news.get_full_article(news['url'])
-        images = []
-        for image in article.images:
-            if ".jpg" in image or '.png' in image:
-                images.append(image)
-                break
+        images = ''
+        for i in range(1):
+            try:
+                for image in article.images:
+                    if ".jpg" in image or '.png' in image:
+                        images = image
+            except:
+                images = ""
         news_paper['image'] = images
         response.append(news_paper)
     return response
