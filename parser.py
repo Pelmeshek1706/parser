@@ -1,4 +1,4 @@
-
+import random
 import requests
 import urllib
 import pandas as pd
@@ -94,12 +94,12 @@ def parse_tg(query, n_posts):
     # print(len(b['message']))
     return response
 
-def actual(country, period, max_results):
+def parser_actual(country, period, max_results):
     google_news = GNews(language='uk', country=country, period=period, max_results=max_results)
     parse_news = google_news.get_top_news()
     return create_response(parse_news, google_news)
 
-def by_qyery(query, country, period, max_results):
+def parser_by_qyery(query, country, period, max_results):
     google_news = GNews(language='uk', country=country, period=period, max_results=max_results)
     parse_news = google_news.get_news(query)
     return create_response(parse_news, google_news)
@@ -127,15 +127,27 @@ def create_response(parse_news, google_news):
             except:
                 images = "https://www.ixbt.com/img/n1/news/2021/2/1/chrome-incognito-featured_large.jpg"
         news_paper['image'] = images
-        print(news_paper)
-        print('=====')
+        # print(news_paper)
+        # print('=====')
         response.append(news_paper)
     # print(response)
-    print(len(response))
+    # print(len(response))
     return response
 
+def parse_by_topic(topics, country, period, max_results):
+    answer = []
+    for topic in topics:
+        google_news = GNews(language='uk', country=country, period=period, max_results=max_results)
+        parse_news = google_news.get_news_by_topic(topic)
+        answer += (create_response(parse_news, google_news))
+
+    random.shuffle(answer)
+    return answer
+
 #test
-google_result = by_qyery(query, country="UA", period="12h", max_results=150)
+google_result = parser_by_qyery(query, country="UA", period="12h", max_results=150)
 twitter_result = parse_twitter(query)
 tg_result = parse_tg(query, 1)
-actual_news = actual(country="UA", period="12h", max_results=150)
+actual_news = parser_actual(country="UA", period="12h", max_results=150)
+topics = ['BUSINESS','SPORTS','SCIENCE']
+parse_topics = parse_by_topic(topics=topics, country="UA", period="12h", max_results=10)
