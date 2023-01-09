@@ -64,7 +64,7 @@ def parse_tg(query, n_posts):
         tgpost = soup.find_all('div', class_='tgme_widget_message')
 
         info = {
-            "channel_link": channel_link,
+            "channelLink": channel_link,
             "message": []
         }
         count = 0
@@ -78,9 +78,9 @@ def parse_tg(query, n_posts):
 
                 if content.find('a', class_='tgme_widget_message_photo_wrap') != None:
                     link = str(content.find('a', class_='tgme_widget_message_photo_wrap'))
-                    full_message['url_image'] = re.findall(r"https://cdn4.*.*.jpg", link)[0]
-                elif 'url_image' in full_message:
-                    full_message.pop('url_image')
+                    full_message['urlImage'] = re.findall(r"https://cdn4.*.*.jpg", link)[0]
+                elif 'urlImage' in full_message:
+                    full_message.pop('urlImage')
                 info['message'].append(full_message)
                 count += 1
             else:
@@ -109,14 +109,14 @@ def create_response(parse_news, google_news):
     for news in parse_news:
         news_paper = {}
 
-        news_paper['title'] = news['title']
-        news_paper['text'] = (
+        news_paper['newsTitle'] = news['title']
+        news_paper['newsText'] = (
             news['description'][:limit] + "..." if len(news['description']) > limit else news['description'])
 
-        news_paper['date'] = news['published date']
-        news_paper['link'] = news['url']
-        news_paper['news_resource'] = news['publisher']['title']
-        news_paper['author_link'] = news['publisher']['href']
+        news_paper['publishedDate'] = news['published date']
+        news_paper['newsLink'] = news['url']
+        news_paper['newsResource'] = news['publisher']['title']
+        news_paper['authorLink'] = news['publisher']['href']
         article = google_news.get_full_article(news['url'])
         images = ''
         for i in range(1):
@@ -134,7 +134,7 @@ def create_response(parse_news, google_news):
     print(len(response))
     return response
 
-
+#test
 google_result = by_qyery(query, country="UA", period="12h", max_results=150)
 twitter_result = parse_twitter(query)
 tg_result = parse_tg(query, 1)
