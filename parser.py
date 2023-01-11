@@ -11,9 +11,10 @@ from bs4 import BeautifulSoup
 import requests
 from gnews import GNews
 
-query = input("Enter your query - ")
-
+# query = input("Enter your query - ")
+query = "Киев Свет"
 limit = 50
+default_image = "https://www.ixbt.com/img/n1/news/2021/2/1/chrome-incognito-featured_large.jpg"
 
 def parse_twitter(q):
     client = tweepy.Client(bearer_token=config.BEARER_TOKEN)
@@ -64,7 +65,7 @@ def parse_tg(query, n_posts):
         tgpost = soup.find_all('div', class_='tgme_widget_message')
 
         info = {
-            "channelLink": channel_link,
+            "channel_link": channel_link,
             "message": []
         }
         count = 0
@@ -78,61 +79,25 @@ def parse_tg(query, n_posts):
 
                 if content.find('a', class_='tgme_widget_message_photo_wrap') != None:
                     link = str(content.find('a', class_='tgme_widget_message_photo_wrap'))
-                    full_message['urlImage'] = re.findall(r"https://cdn4.*.*.jpg", link)[0]
-                elif 'urlImage' in full_message:
-                    full_message.pop('urlImage')
+                    full_message['url_image'] = re.findall(r"https://cdn4.*.*.jpg", link)[0]
+                elif 'url_image' in full_message:
+                    full_message.pop('url_image')
                 info['message'].append(full_message)
                 count += 1
             else:
                 break
         response['content'].append(info)
-    # a = response['content'][0]
-    # print(a)
-    # print(len(a['message']))
-    # b = response['content'][1]
-    # print(b)
-    # print(len(b['message']))
     return response
 
-def parser_actual(country, period, max_results):
+def actual(country, period, max_results):
     google_news = GNews(language='uk', country=country, period=period, max_results=max_results)
     parse_news = google_news.get_top_news()
     return create_response(parse_news, google_news)
 
-def parser_by_qyery(query, country, period, max_results):
+def by_qyery(query, country, period, max_results):
     google_news = GNews(language='uk', country=country, period=period, max_results=max_results)
     parse_news = google_news.get_news(query)
     return create_response(parse_news, google_news)
-
-def create_response(parse_news, google_news):
-    response = []
-    for news in parse_news:
-        news_paper = {}
-
-        news_paper['newsTitle'] = news['title']
-        news_paper['newsText'] = (
-            news['description'][:limit] + "..." if len(news['description']) > limit else news['description'])
-
-        news_paper['publishedDate'] = news['published date']
-        news_paper['newsLink'] = news['url']
-        news_paper['newsResource'] = news['publisher']['title']
-        news_paper['authorLink'] = news['publisher']['href']
-        article = google_news.get_full_article(news['url'])
-        images = ''
-        for i in range(1):
-            try:
-                for image in article.images:
-                    if ".jpg" in image or '.png' in image:
-                        images = image
-            except:
-                images = "https://www.ixbt.com/img/n1/news/2021/2/1/chrome-incognito-featured_large.jpg"
-        news_paper['image'] = images
-        # print(news_paper)
-        # print('=====')
-        response.append(news_paper)
-    # print(response)
-    # print(len(response))
-    return response
 
 def parse_by_topic(topics, country, period, max_results):
     answer = []
@@ -144,10 +109,29 @@ def parse_by_topic(topics, country, period, max_results):
     random.shuffle(answer)
     return answer
 
-#test
-google_result = parser_by_qyery(query, country="UA", period="12h", max_results=150)
-twitter_result = parse_twitter(query)
-tg_result = parse_tg(query, 1)
-actual_news = parser_actual(country="UA", period="12h", max_results=150)
-topics = ['BUSINESS','SPORTS','SCIENCE']
-parse_topics = parse_by_topic(topics=topics, country="UA", period="12h", max_results=10)
+def create_response(parse_news, google_news):
+    response = []
+    for news in parse_news:
+        news_paper = {}
+
+        news_paper['title'] = news['title']
+        news_paper['text'] = (
+            news['description'][:limit] + "..." if len(news['description']) > limit else news['description'])
+
+        news_paper['date'] = news['published date']
+        news_paper['link'] = news['url']
+        news_paper['news_resource'] = news['publisher']['title']
+        news_paper['author_link'] = news['publisher']['href']
+        article = google_news.get_full_article(news['url'])
+        images = ''
+        for i in range(1):
+            try:
+                for image in article.images:
+                    if ".jpg" in image or '.png' in image:
+                        images = image
+            except:
+                images = default_image
+        news_paper['image'] = images
+        response.append(news_paper)
+    return response
+
